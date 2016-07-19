@@ -35,7 +35,7 @@ public class Command {
     }
 
     public void run() {
-        runCommand();
+        runGoodCommand();
     }
 
     private void runCommand() {
