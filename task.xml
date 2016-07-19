@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<list>
+    <exec command="pwd" />
+    <exec command="ls -lah" />
+    <exec command="cat task.xml" />
+    <exec command="ls -ll" />
+</list>
