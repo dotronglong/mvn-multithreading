@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
 public class App {
@@ -18,22 +19,32 @@ public class App {
     public static final String XML_NODE_COMMAND = "command";
     public static final String XML_NODE_EXEC = "exec";
 
+    private ArrayList<Thread> threads;
+    private ArrayList<CommandRunnable> runnables;
+
     public static void main(String[] args) {
         App app = new App();
         app.run();
     }
 
     public void run() {
-        System.out.println("Look for tasks...");
         String[] tasks = this.readForTasks();
 
-        System.out.println("====> Found " + tasks.length + " tasks.");
+        System.out.println("→ Found " + tasks.length + " tasks.");
         this.showTasks(tasks);
 
-        System.out.println("====> Running...");
+        System.out.println("→ Run tasks ...");
+        threads = new ArrayList<Thread>();
+        runnables = new ArrayList<CommandRunnable>();
         for (String task : tasks) {
-            this.runTask(task);
+            CommandRunnable runnable = new CommandRunnable(task);
+            Thread thread = new Thread(runnable);
+            threads.add(thread);
+            runnables.add(runnable);
         }
+        runTasks();
+        waitTasks();
+        closeTasks();
     }
 
     private String[] readForTasks() {
@@ -80,8 +91,27 @@ public class App {
         }
     }
 
-    private void runTask(String task) {
-        Thread t = new Thread(new CommandRunnable(task));
-        t.start();
+    private void runTasks() {
+        for (Thread thread : threads) {
+            thread.start();
+        }
+    }
+
+    private void waitTasks() {
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void closeTasks() {
+        for (CommandRunnable runnable : runnables) {
+            if (runnable.getCommand().getExitCode() != 0) {
+                System.exit(1);
+            }
+        }
     }
 }

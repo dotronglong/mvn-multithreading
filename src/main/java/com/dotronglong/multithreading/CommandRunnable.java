@@ -22,6 +22,10 @@ public class CommandRunnable implements Runnable {
         this.sleepIn = sleepIn;
     }
 
+    public Command getCommand() {
+        return command;
+    }
+
     public void run() {
         if (randomSleep) {
             runInRandomSleepMode();

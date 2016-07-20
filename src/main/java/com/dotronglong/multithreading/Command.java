@@ -3,35 +3,50 @@ package com.dotronglong.multithreading;
 import com.dotronglong.multithreading.util.StreamProcessor;
 
 public class Command {
-    public String cmd;
+    public final static String TYPE_ERROR  = "ERROR";
+    public final static String TYPE_OUTPUT = "OUTPUT";
+
+    public final static String BASH_SHELL   = "/bin/sh";
+    public final static String BASH_COMMAND = "-c";
+
+    protected String cmd;
+    private int exitCode = 0;
 
     Command(String cmd) {
         this.cmd = cmd;
     }
 
-    public void run() {
-        executeCommand();
+    public int run() {
+        return executeCommand();
     }
 
-    private void executeCommand() {
+    public int getExitCode() {
+        return exitCode;
+    }
+
+    private int executeCommand() {
         try {
-            Process p = Runtime.getRuntime().exec(this.cmd);
+            String[] cmd = {BASH_SHELL, BASH_COMMAND, this.cmd};
+            Process p = Runtime.getRuntime().exec(cmd);
 
             // any error message?
             StreamProcessor errorStream = new
-                    StreamProcessor(p.getErrorStream(), "ERROR");
+                    StreamProcessor(p.getErrorStream(), TYPE_ERROR);
 
             // any output?
             StreamProcessor outputStream = new
-                    StreamProcessor(p.getInputStream(), "OUTPUT");
+                    StreamProcessor(p.getInputStream(), TYPE_OUTPUT);
 
             // kick them off
             errorStream.start();
             outputStream.start();
 
-//            System.exit(p.waitFor());
+            exitCode = p.waitFor();
         } catch (Throwable t) {
             t.printStackTrace();
+            exitCode = 1;
         }
+
+        return exitCode;
     }
 }
