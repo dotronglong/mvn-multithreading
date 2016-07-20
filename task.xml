@@ -4,4 +4,5 @@
     <exec command="ls -lah" />
     <exec command="cat task.xml" />
     <exec command="ls -ll" />
+    <exec command="cat /etc/hosts" />
 </list>
