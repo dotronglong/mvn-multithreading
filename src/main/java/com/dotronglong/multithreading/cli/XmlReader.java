@@ -1,5 +1,4 @@
-package com.dotronglong.multithreading.util;
-
+package com.dotronglong.multithreading.cli;
 /**
  * The MIT License (MIT)
  * <p>
@@ -24,39 +23,15 @@ package com.dotronglong.multithreading.util;
  * SOFTWARE.
  */
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 /**
- * StreamProcessor
- *
- * Handle and send out the output of buffer stream
+ * XmlReader
+ * <p>
+ * Read xml file for tasks
  *
  * @author Long Do
  * @version 1.0.0
- * @since Jul 20, 2016
+ * @since Jul 21, 2016
  */
-public class StreamProcessor extends Thread {
-    InputStream is;
-    String type;
+public class XmlReader {
 
-    public StreamProcessor(InputStream is, String type) {
-        this.is = is;
-        this.type = type;
-    }
-
-    public void run() {
-        try {
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
 }

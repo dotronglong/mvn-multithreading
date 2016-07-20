@@ -1,10 +1,14 @@
 package com.dotronglong.multithreading;
 
+import com.dotronglong.multithreading.cli.CommandRunnable;
+import com.dotronglong.multithreading.util.XmlParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -64,14 +68,25 @@ public class App {
                 tasks[i] = String.valueOf(lines[i]);
             }
         } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return tasks;
     }
 
     private String[] readXmlTasks() {
-        XmlReader xml = new XmlReader(TASK_XML_FILE);
-        Document doc = xml.getDocument();
+        XmlParser xml = new XmlParser();
+        Document doc = null;
+        try {
+            doc = xml.parse(TASK_XML_FILE);
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert doc != null;
         NodeList nodes = doc.getElementsByTagName(XML_NODE_COMMAND);
         String[] tasks = new String[nodes.getLength()];
 
@@ -109,7 +124,7 @@ public class App {
 
     private void closeTasks() {
         for (CommandRunnable runnable : runnables) {
-            if (runnable.getCommand().getExitCode() != 0) {
+            if (runnable.getExitCode() != 0) {
                 System.exit(1);
             }
         }
