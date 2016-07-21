@@ -1,4 +1,4 @@
-package com.dotronglong.multithreading.app;
+package com.dotronglong.multithreading.plugin;
 /**
  * The MIT License (MIT)
  * <p>
@@ -23,10 +23,11 @@ package com.dotronglong.multithreading.app;
  * SOFTWARE.
  */
 
-import org.w3c.dom.Document;
+import com.dotronglong.multithreading.app.AppAware;
+import org.w3c.dom.Element;
 
 /**
- * BaseApp
+ * BasePlugin
  *
  * {Purpose of This Class}
  *
@@ -34,16 +35,23 @@ import org.w3c.dom.Document;
  * @version 1.0.0
  * @since Jul 21, 2016
  */
-public abstract class BaseApp implements AppAware {
-    public final static String XML_NODE_CONTENT = "content";
-    public final static String XML_NODE_PLUGINS = "plugins";
-    public final static String XML_NODE_PLUGIN = "plugin";
+public abstract class BasePlugin implements PluginAware {
+    protected Element element;
+    protected AppAware app;
 
-    protected Document document;
-
-    public void setDocument(Document document) {
-        this.document = document;
+    public void setPluginElement(Element element) {
+        this.element = element;
     }
 
-    public Document getDocument() { return document; }
+    public Element getPluginElement() {
+        return element;
+    }
+
+    public void setApp(AppAware app) {
+        this.app = app;
+    }
+
+    public AppAware getApp() {
+        return app;
+    }
 }

@@ -3,6 +3,12 @@
     <config>
         <name>cli</name>
     </config>
+    <plugins>
+        <plugin name="junit.behat" output="test.xml">
+            <file>log1.xml</file>
+            <file>log2.xml</file>
+        </plugin>
+    </plugins>
     <content>
         <command>
             <exec><![CDATA[ls -lah]]></exec>

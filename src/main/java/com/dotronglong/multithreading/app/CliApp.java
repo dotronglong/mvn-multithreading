@@ -24,9 +24,9 @@ package com.dotronglong.multithreading.app;
  */
 
 import com.dotronglong.multithreading.cli.CommandRunnable;
-import org.w3c.dom.Document;
+import com.dotronglong.multithreading.plugin.PluginAware;
+import com.dotronglong.multithreading.plugin.junit.Behat;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
@@ -40,22 +40,24 @@ import java.util.ArrayList;
  * @version 1.0.0
  * @since Jul 21, 2016
  */
-public class CliApp extends BaseApp implements AppAware {
+public class CliApp extends BaseApp {
     private final static String XML_NODE_COMMAND = "command";
     private final static String XML_NODE_COMMAND_EXEC = "exec";
+    private final static String XML_NODE_ATTR_NAME = "name";
 
     /* List of commands read from Document */
     private ArrayList<Command> commands = new ArrayList<Command>();
 
     private ArrayList<Thread> threads = new ArrayList<Thread>();
     private ArrayList<CommandRunnable> runnables = new ArrayList<CommandRunnable>();
-
-    public CliApp() {
-        name = "cli";
-    }
+    private ArrayList<PluginAware> plugins = new ArrayList<PluginAware>();
 
     class Command {
         public String exec;
+    }
+
+    private void loadPlugins() {
+        plugins.add(new Behat());
     }
 
     private void loadContent() {
@@ -68,6 +70,24 @@ public class CliApp extends BaseApp implements AppAware {
             command.exec = elementCommand.getElementsByTagName(XML_NODE_COMMAND_EXEC).item(0).getTextContent();
             commands.add(command);
         }
+
+        Element elementPlugins = (Element) document.getElementsByTagName(XML_NODE_PLUGINS).item(0);
+        NodeList nodePlugins = elementPlugins.getElementsByTagName(XML_NODE_PLUGIN);
+        for (int i = 0; i < nodePlugins.getLength(); i++) {
+            Element elementPlugin = (Element) nodePlugins.item(i);
+            String pluginName = elementPlugin.getAttribute(XML_NODE_ATTR_NAME);
+            for (PluginAware plugin : plugins) {
+                if (plugin.getName().equals(pluginName)) {
+                    plugin.setApp(this);
+                    plugin.setPluginElement(elementPlugin);
+                    plugin.run();
+                }
+            }
+        }
+    }
+
+    public String getName() {
+        return "cli";
     }
 
     public void run(String[] args) {
@@ -76,9 +96,11 @@ public class CliApp extends BaseApp implements AppAware {
         doStart();
         doWait();
         doClose();
+        doShutdown();
     }
 
     private void doInit() {
+        loadPlugins();
         loadContent();
         for (Command command : commands) {
             CommandRunnable runnable = new CommandRunnable(command.exec);
@@ -118,5 +140,9 @@ public class CliApp extends BaseApp implements AppAware {
                 System.exit(1);
             }
         }
+    }
+
+    private void doShutdown() {
+
     }
 }

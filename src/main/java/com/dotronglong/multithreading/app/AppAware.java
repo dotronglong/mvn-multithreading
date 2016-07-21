@@ -38,6 +38,8 @@ public interface AppAware {
     /* Document which hold xml config and container */
     void setDocument(Document xml);
 
+    Document getDocument();
+
     /* Application name */
     String getName();
 
