@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<app>
+    <config>
+        <name>cli</name>
+    </config>
+    <content>
+        <command>
+            <exec><![CDATA[ls -lah]]></exec>
+        </command>
+        <command>
+            <exec><![CDATA[ls -ll]]></exec>
+        </command>
+    </content>
+</app>

@@ -1,6 +1,30 @@
 package com.dotronglong.multithreading;
+/**
+ * The MIT License (MIT)
+ * <p>
+ * Copyright (c) 2016 Do Trong Long
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
-import com.dotronglong.multithreading.cli.CommandRunnable;
+import com.dotronglong.multithreading.app.AppAware;
+import com.dotronglong.multithreading.app.CliApp;
 import com.dotronglong.multithreading.util.XmlParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -10,123 +34,62 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.stream.Stream;
 
+/**
+ * App
+ *
+ * Control application
+ *
+ * @author Long Do
+ * @version 1.0.0
+ * @since Jul 21, 2016
+ */
 public class App {
-    public static final String TASK_XML_FILE = "tasks.xml";
-    public static final String TASK_TEXT_FILE = "tasks.txt";
+    public static final String TASK_XML_FILE = "mit.xml";
+    public static final String XML_NODE_CONFIG = "config";
+    public static final String XML_NODE_NAME = "name";
 
-    public static final String XML_NODE_COMMAND = "command";
-    public static final String XML_NODE_EXEC = "exec";
-
-    private ArrayList<Thread> threads;
-    private ArrayList<CommandRunnable> runnables;
+    private static Document document;
+    private static Config config = new Config();
 
     public static void main(String[] args) {
-        App app = new App();
-        app.run();
-    }
+        loadDocument();
+        loadConfig();
 
-    public void run() {
-        String[] tasks = this.readForTasks();
+        ArrayList<AppAware> apps = new ArrayList<AppAware>();
+        apps.add(new CliApp());
 
-        System.out.println("→ Found " + tasks.length + " tasks.");
-        this.showTasks(tasks);
-
-        System.out.println("→ Run tasks ...");
-        threads = new ArrayList<Thread>();
-        runnables = new ArrayList<CommandRunnable>();
-        for (String task : tasks) {
-            CommandRunnable runnable = new CommandRunnable(task);
-            Thread thread = new Thread(runnable);
-            threads.add(thread);
-            runnables.add(runnable);
-        }
-        runTasks();
-        waitTasks();
-        closeTasks();
-    }
-
-    private String[] readForTasks() {
-        return readXmlTasks();
-    }
-
-    private String[] readTextTasks() {
-        String tasks[] = new String[0];
-        Path path = FileSystems.getDefault().getPath(TASK_TEXT_FILE);
-        try {
-            Stream<String> stream = Files.lines(path);
-            Object[] lines = stream.toArray();
-            stream.close();
-
-            tasks = new String[lines.length];
-            for (int i = 0; i < lines.length; i++) {
-                tasks[i] = String.valueOf(lines[i]);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return tasks;
-    }
-
-    private String[] readXmlTasks() {
-        XmlParser xml = new XmlParser();
-        Document doc = null;
-        try {
-            doc = xml.parse(TASK_XML_FILE);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        assert doc != null;
-        NodeList nodes = doc.getElementsByTagName(XML_NODE_COMMAND);
-        String[] tasks = new String[nodes.getLength()];
-
-        for (int i = 0; i < nodes.getLength(); i++) {
-            Node node = nodes.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                Element element = (Element) node;
-                tasks[i] = element.getElementsByTagName(XML_NODE_EXEC).item(0).getTextContent();
+        for (AppAware app : apps) {
+            if (app.getName().equals(config.appName)) {
+                app.setDocument(document);
+                app.run(args);
+                break;
             }
         }
-        return tasks;
     }
 
-    private void showTasks(String[] tasks) {
-        for (String task : tasks) {
-            System.out.println(task);
-        }
-    }
-
-    private void runTasks() {
-        for (Thread thread : threads) {
-            thread.start();
-        }
-    }
-
-    private void waitTasks() {
-        for (Thread thread : threads) {
+    public static void loadDocument() {
+        if (document == null) {
+            XmlParser xml = new XmlParser();
             try {
-                thread.join();
-            } catch (InterruptedException e) {
+                document = xml.parse(TASK_XML_FILE);
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void closeTasks() {
-        for (CommandRunnable runnable : runnables) {
-            if (runnable.getExitCode() != 0) {
-                System.exit(1);
-            }
-        }
+    public static void loadConfig() {
+        assert document != null;
+
+        NodeList nodes = document.getElementsByTagName(XML_NODE_CONFIG);
+        Element elementConfig = (Element) nodes.item(0);
+        Node nodeName = elementConfig.getElementsByTagName(XML_NODE_NAME).item(0);
+        config.appName = nodeName.getTextContent();
     }
 }
