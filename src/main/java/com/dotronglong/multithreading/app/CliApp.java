@@ -96,7 +96,7 @@ public class CliApp extends BaseApp implements AppAware {
     }
 
     private void doStart() {
-        System.out.println("→ Run tasks ...");
+        System.out.println("→ Run commands ...");
         for (Thread thread : threads) {
             thread.start();
         }
