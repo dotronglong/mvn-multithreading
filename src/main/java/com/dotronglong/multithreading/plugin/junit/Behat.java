@@ -139,5 +139,6 @@ public class Behat extends BasePlugin {
         DOMSource source = new DOMSource(out);
         StreamResult result = new StreamResult(new File(outputPath));
         transformer.transform(source, result);
+        System.out.println(String.format("→ Write (junit.behat) file %s", outputPath));
     }
 }

@@ -70,20 +70,6 @@ public class CliApp extends BaseApp {
             command.exec = elementCommand.getElementsByTagName(XML_NODE_COMMAND_EXEC).item(0).getTextContent();
             commands.add(command);
         }
-
-        Element elementPlugins = (Element) document.getElementsByTagName(XML_NODE_PLUGINS).item(0);
-        NodeList nodePlugins = elementPlugins.getElementsByTagName(XML_NODE_PLUGIN);
-        for (int i = 0; i < nodePlugins.getLength(); i++) {
-            Element elementPlugin = (Element) nodePlugins.item(i);
-            String pluginName = elementPlugin.getAttribute(XML_NODE_ATTR_NAME);
-            for (PluginAware plugin : plugins) {
-                if (plugin.getName().equals(pluginName)) {
-                    plugin.setApp(this);
-                    plugin.setPluginElement(elementPlugin);
-                    plugin.run();
-                }
-            }
-        }
     }
 
     public String getName() {
@@ -135,14 +121,26 @@ public class CliApp extends BaseApp {
     }
 
     private void doClose() {
-        for (CommandRunnable runnable : runnables) {
-            if (runnable.getExitCode() != 0) {
-                System.exit(1);
+        Element elementPlugins = (Element) document.getElementsByTagName(XML_NODE_PLUGINS).item(0);
+        NodeList nodePlugins = elementPlugins.getElementsByTagName(XML_NODE_PLUGIN);
+        for (int i = 0; i < nodePlugins.getLength(); i++) {
+            Element elementPlugin = (Element) nodePlugins.item(i);
+            String pluginName = elementPlugin.getAttribute(XML_NODE_ATTR_NAME);
+            for (PluginAware plugin : plugins) {
+                if (plugin.getName().equals(pluginName)) {
+                    plugin.setApp(this);
+                    plugin.setPluginElement(elementPlugin);
+                    plugin.run();
+                }
             }
         }
     }
 
     private void doShutdown() {
-
+        for (CommandRunnable runnable : runnables) {
+            if (runnable.getExitCode() != 0) {
+                System.exit(1);
+            }
+        }
     }
 }
