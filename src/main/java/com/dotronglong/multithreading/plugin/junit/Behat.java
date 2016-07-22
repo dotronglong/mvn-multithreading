@@ -23,9 +23,7 @@ package com.dotronglong.multithreading.plugin.junit;
  * SOFTWARE.
  */
 
-import com.dotronglong.multithreading.app.AppAware;
 import com.dotronglong.multithreading.plugin.BasePlugin;
-import com.dotronglong.multithreading.plugin.PluginAware;
 import com.dotronglong.multithreading.util.XmlParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,7 +35,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -58,8 +55,10 @@ import java.util.ArrayList;
 public class Behat extends BasePlugin {
     private final static String XML_NODE_ATTR_OUTPUT = "output";
     private final static String XML_NODE_FILE = "file";
-    private final static String XML_NODE_TESTSUITES = "testsuites";
-    private final static String XML_NODE_TESTSUITE = "testsuite";
+    private final static String XML_NODE_TESTSUITES = "testSuites";
+    private final static String XML_NODE_TESTSUITE = "testSuite";
+    
+    private final static String PLUGIN_NAME = "junit.behat";
 
     /* Path of file to output result */
     private String outputPath = "";
@@ -71,10 +70,10 @@ public class Behat extends BasePlugin {
     private ArrayList<Document> logs = new ArrayList<Document>();
 
     private Document out;
-    private Element testsuites;
+    private Element testSuites;
 
     public String getName() {
-        return "junit.behat";
+        return PLUGIN_NAME;
     }
 
     public void run() {
@@ -100,6 +99,7 @@ public class Behat extends BasePlugin {
 
             XmlParser xml = new XmlParser(path);
             try {
+                System.out.println(String.format("→ [%s] Found file %s", PLUGIN_NAME, path));
                 logs.add(xml.parse());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -116,8 +116,8 @@ public class Behat extends BasePlugin {
         try {
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             out = docBuilder.newDocument();
-            testsuites = out.createElement(XML_NODE_TESTSUITES);
-            out.appendChild(testsuites);
+            testSuites = out.createElement(XML_NODE_TESTSUITES);
+            out.appendChild(testSuites);
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
@@ -127,8 +127,8 @@ public class Behat extends BasePlugin {
         for (Document doc : logs) {
             NodeList nodes = doc.getElementsByTagName(XML_NODE_TESTSUITE);
             for (int i = 0; i < nodes.getLength(); i++) {
-                Node testsuite = nodes.item(i);
-                testsuites.appendChild(out.importNode(testsuite, true));
+                Node testSuite = nodes.item(i);
+                testSuites.appendChild(out.importNode(testSuite, true));
             }
         }
     }
@@ -139,6 +139,6 @@ public class Behat extends BasePlugin {
         DOMSource source = new DOMSource(out);
         StreamResult result = new StreamResult(new File(outputPath));
         transformer.transform(source, result);
-        System.out.println(String.format("→ Write (junit.behat) file %s", outputPath));
+        System.out.println(String.format("→ [%s] Wrote to file %s", PLUGIN_NAME, outputPath));
     }
 }
