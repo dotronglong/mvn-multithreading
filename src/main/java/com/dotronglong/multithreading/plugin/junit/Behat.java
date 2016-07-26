@@ -55,8 +55,8 @@ import java.util.ArrayList;
 public class Behat extends BasePlugin {
     private final static String XML_NODE_ATTR_OUTPUT = "output";
     private final static String XML_NODE_FILE = "file";
-    private final static String XML_NODE_TESTSUITES = "testSuites";
-    private final static String XML_NODE_TESTSUITE = "testSuite";
+    private final static String XML_NODE_TESTSUITES = "testsuites";
+    private final static String XML_NODE_TESTSUITE = "testsuite";
     
     private final static String PLUGIN_NAME = "junit.behat";
 
@@ -99,10 +99,10 @@ public class Behat extends BasePlugin {
 
             XmlParser xml = new XmlParser(path);
             try {
-                System.out.println(String.format("→ [%s] Found file %s", PLUGIN_NAME, path));
                 logs.add(xml.parse());
+                System.out.println(String.format("→ [%s] Found file %s", PLUGIN_NAME, path));
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println(String.format("→ [%s] File could not be found %s", PLUGIN_NAME, path));
             } catch (SAXException e) {
                 e.printStackTrace();
             } catch (ParserConfigurationException e) {

@@ -41,9 +41,16 @@ import java.util.ArrayList;
  * @since Jul 21, 2016
  */
 public class CliApp extends BaseApp {
+    private final static String XML_NODE_BASH = "sh";
+    private final static String XML_NODE_SLEEP = "sleep";
     private final static String XML_NODE_COMMAND = "command";
     private final static String XML_NODE_COMMAND_EXEC = "exec";
     private final static String XML_NODE_ATTR_NAME = "name";
+    private final static String XML_NODE_ATTR_RANDOM_SLEEP = "randomSleep";
+    private final static String XML_NODE_ATTR_SLEEPIN = "sleepIn";
+    private final static String XML_NODE_ATTR_SLEEPMAX = "sleepMax";
+    private final static String XML_BOOLEAN_TRUE = "true";
+    private final static String XML_BOOLEAN_FALSE = "false";
 
     /* List of commands read from Document */
     private ArrayList<Command> commands = new ArrayList<Command>();
@@ -52,12 +59,43 @@ public class CliApp extends BaseApp {
     private ArrayList<CommandRunnable> runnables = new ArrayList<CommandRunnable>();
     private ArrayList<PluginAware> plugins = new ArrayList<PluginAware>();
 
+    private Config config = new Config();
+
     class Command {
         public String exec;
     }
 
+    class Config {
+        public String bashShell = null;
+        public boolean randomSleep = false;
+        public int sleepIn = 0;
+        public int sleepMax = CommandRunnable.SLEEP_MAX;
+    }
+
     private void loadPlugins() {
         plugins.add(new Behat());
+    }
+
+    private void loadConfig() {
+        Element elementConfig = (Element) document.getElementsByTagName(XML_NODE_CONFIG).item(0);
+        NodeList bashShellNodes = elementConfig.getElementsByTagName(XML_NODE_BASH);
+        if (bashShellNodes.getLength() > 0) {
+            config.bashShell = bashShellNodes.item(0).getTextContent();
+        }
+
+        NodeList sleepNodes = elementConfig.getElementsByTagName(XML_NODE_SLEEP);
+        if (sleepNodes.getLength() > 0) {
+            Element sleepElement = (Element) sleepNodes.item(0);
+            if (sleepElement.hasAttribute(XML_NODE_ATTR_RANDOM_SLEEP)) {
+                config.randomSleep = sleepElement.getAttribute(XML_NODE_ATTR_RANDOM_SLEEP).equals(XML_BOOLEAN_TRUE) ? true : false;
+            }
+            if (sleepElement.hasAttribute(XML_NODE_ATTR_SLEEPIN)) {
+                config.sleepIn = Integer.parseInt(sleepElement.getAttribute(XML_NODE_ATTR_SLEEPIN));
+            }
+            if (sleepElement.hasAttribute(XML_NODE_ATTR_SLEEPMAX)) {
+                config.sleepMax = Integer.parseInt(sleepElement.getAttribute(XML_NODE_ATTR_SLEEPMAX));
+            }
+        }
     }
 
     private void loadContent() {
@@ -86,10 +124,21 @@ public class CliApp extends BaseApp {
     }
 
     private void doInit() {
+        loadConfig();
         loadPlugins();
         loadContent();
+
+        if (config.bashShell != null) {
+            CommandRunnable.BASH_SHELL = config.bashShell;
+        }
+        CommandRunnable.SLEEP_MAX = config.sleepMax;
         for (Command command : commands) {
-            CommandRunnable runnable = new CommandRunnable(command.exec);
+            CommandRunnable runnable;
+            if (config.randomSleep == true) {
+                runnable = new CommandRunnable(command.exec, true);
+            } else {
+                runnable = new CommandRunnable(command.exec, config.sleepIn);
+            }
             Thread thread = new Thread(runnable);
             threads.add(thread);
             runnables.add(runnable);

@@ -3,3 +3,4 @@ target/
 tasks.xml
 tasks.txt
 *.iml
+log*.xml

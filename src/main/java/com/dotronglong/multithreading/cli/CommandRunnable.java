@@ -40,13 +40,13 @@ public class CommandRunnable implements Runnable {
     public final static String TYPE_ERROR  = "ERROR";
     public final static String TYPE_OUTPUT = "OUTPUT";
 
-    public final static String BASH_SHELL   = "/bin/sh";
-    public final static String BASH_COMMAND = "-c";
+    public static String BASH_SHELL   = "/bin/sh";
+    public static String BASH_COMMAND = "-c";
 
     /**
      * Maximum time of random sleep (seconds)
      */
-    public static final int SLEEP_MAX = 10;
+    public static int SLEEP_MAX = 10;
 
     /**
      * Process exit code
@@ -141,7 +141,7 @@ public class CommandRunnable implements Runnable {
             // wait for exit code
             exitCode = p.waitFor();
         } catch (Throwable t) {
-            t.printStackTrace();
+            System.out.println(String.format("→ [CMD] %s", t.getMessage()));
             exitCode = 1;
         }
 

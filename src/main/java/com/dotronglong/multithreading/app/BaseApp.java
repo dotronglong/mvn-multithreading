@@ -35,6 +35,7 @@ import org.w3c.dom.Document;
  * @since Jul 21, 2016
  */
 public abstract class BaseApp implements AppAware {
+    public final static String XML_NODE_CONFIG = "config";
     public final static String XML_NODE_CONTENT = "content";
     public final static String XML_NODE_PLUGINS = "plugins";
     public final static String XML_NODE_PLUGIN = "plugin";

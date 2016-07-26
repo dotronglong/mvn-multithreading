@@ -21,6 +21,8 @@ Sample of this configuration file could be seen as below
 <app>
     <config>
         <name>cli</name>
+        <sh>/bin/sh</sh>
+        <sleep randomSleep="true" sleepIn="2" sleepMax="10"></sleep>
     </config>
     <plugins>
         <plugin name="junit.behat" output="junit.xml">

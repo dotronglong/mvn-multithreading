@@ -4,7 +4,7 @@
         <name>cli</name>
     </config>
     <plugins>
-        <plugin name="junit.behat" output="test.xml">
+        <plugin name="junit.behat" output="log.xml">
             <file>log1.xml</file>
             <file>log2.xml</file>
         </plugin>
