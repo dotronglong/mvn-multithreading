@@ -2,6 +2,15 @@
 <app>
     <config>
         <name>cli</name>
+        <!-- For Mac users -->
+        <!--<sh command="-c">/bin/bash</sh>-->
+        <!-- For Windows users -->
+        <!--<sh command="/C">cmd</sh>-->
+        <!-- Let command has a sleep timer -->
+        <!-- randomSleep: defines whether a random number seconds to sleep for each command -->
+        <!-- sleepMax: use in combination with randomSleep which set maximum sleep time  -->
+        <!-- sleepIn: only effects if randomSleep is turn off, set a specific sleep time  -->
+        <!--<sleep randomSleep="true" sleepIn="2" sleepMax="3"></sleep>-->
     </config>
     <plugins>
         <plugin name="junit.behat" output="log.xml">

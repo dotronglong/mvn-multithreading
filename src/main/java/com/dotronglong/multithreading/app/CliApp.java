@@ -46,6 +46,7 @@ public class CliApp extends BaseApp {
     private final static String XML_NODE_COMMAND = "command";
     private final static String XML_NODE_COMMAND_EXEC = "exec";
     private final static String XML_NODE_ATTR_NAME = "name";
+    private final static String XML_NODE_ATTR_BASH_COMMAND = "command";
     private final static String XML_NODE_ATTR_RANDOM_SLEEP = "randomSleep";
     private final static String XML_NODE_ATTR_SLEEPIN = "sleepIn";
     private final static String XML_NODE_ATTR_SLEEPMAX = "sleepMax";
@@ -67,6 +68,7 @@ public class CliApp extends BaseApp {
 
     class Config {
         public String bashShell = null;
+        public String bashCommand = null;
         public boolean randomSleep = false;
         public int sleepIn = 0;
         public int sleepMax = CommandRunnable.SLEEP_MAX;
@@ -80,7 +82,11 @@ public class CliApp extends BaseApp {
         Element elementConfig = (Element) document.getElementsByTagName(XML_NODE_CONFIG).item(0);
         NodeList bashShellNodes = elementConfig.getElementsByTagName(XML_NODE_BASH);
         if (bashShellNodes.getLength() > 0) {
-            config.bashShell = bashShellNodes.item(0).getTextContent();
+            Element bashElement = (Element) bashShellNodes.item(0);
+            config.bashShell = bashElement.getTextContent();
+            if (bashElement.hasAttribute(XML_NODE_ATTR_BASH_COMMAND)) {
+                config.bashCommand = bashElement.getAttribute(XML_NODE_ATTR_BASH_COMMAND);
+            }
         }
 
         NodeList sleepNodes = elementConfig.getElementsByTagName(XML_NODE_SLEEP);
@@ -130,6 +136,9 @@ public class CliApp extends BaseApp {
 
         if (config.bashShell != null) {
             CommandRunnable.BASH_SHELL = config.bashShell;
+        }
+        if (config.bashCommand != null) {
+            CommandRunnable.BASH_COMMAND = config.bashCommand;
         }
         CommandRunnable.SLEEP_MAX = config.sleepMax;
         for (Command command : commands) {
