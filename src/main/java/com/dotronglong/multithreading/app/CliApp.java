@@ -180,6 +180,9 @@ public class CliApp extends BaseApp {
 
     private void doClose() {
         Element elementPlugins = (Element) document.getElementsByTagName(XML_NODE_PLUGINS).item(0);
+        if (elementPlugins == null) {
+            return;
+        }
         NodeList nodePlugins = elementPlugins.getElementsByTagName(XML_NODE_PLUGIN);
         for (int i = 0; i < nodePlugins.getLength(); i++) {
             Element elementPlugin = (Element) nodePlugins.item(i);
